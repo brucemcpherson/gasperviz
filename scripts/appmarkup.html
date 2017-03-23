@@ -6,10 +6,17 @@
   </div>
   <div id="container" class="mui-container">
    <p class="mui--text-center"><b>Round trip data fetch</b></p>
-   <canvas width="280" height="180" id="meter"></canvas>
-   <canvas width="280" height="180" id="average-meter"></canvas>
-
-    <button id="clear" class="mui-btn mui-btn--primary">Reset</button>
+   <div class="osc place">
+     <canvas id="osc" width="213" height="40"></canvas>
+   </div>
+   <div class="place meter">
+   <canvas width="240" height="150" id="meter"></canvas>
+   </div>
+   <div class="place meter">
+   <canvas width="240" height="150" id="average-meter"></canvas>
+    </div>
+   <button id="clear" class="mui-btn mui-btn--primary">Reset</button>
+  
   </div>
 </div>
 
