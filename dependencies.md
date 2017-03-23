@@ -1,5 +1,5 @@
 # Google Apps Script Project: gasperviz
-This repo (gasperviz) was automatically updated on 23 March 2017 17:01:51 GMT by GasGit
+This repo (gasperviz) was automatically updated on 23 March 2017 20:53:52 GMT by GasGit
 
 For more information see the [desktop liberation site](http://ramblings.mcpher.com/Home/excelquirks/drivesdk/gettinggithubready "desktop liberation") or [contact me on G+](https://plus.google.com/+BruceMcpherson "Bruce McPherson - GDE")
 ## Details for Apps Script project gasperviz
@@ -27,13 +27,9 @@ Home| server_js
 Addon| server_js
 Osc| server_js
 ### Directly referenced libraries
-*library*|*identifier*|*key*|*version*|*dev mode*|*source*|
---- | --- | --- | --- | --- | --- 
-cEffexApiClient| cEffexApiClient|M0ZoQipQg9qyYKGD-uPROISz3TLx7pV4j|4|no|[here](libraries/cEffexApiClient "library source")
+no libraries discovered
 ### All dependencies and sub dependencies
-*library*|*identifier*|*key*|*version*|*dev mode*|*source*|
---- | --- | --- | --- | --- | --- 
-cEffexApiClient| cEffexApiClient|M0ZoQipQg9qyYKGD-uPROISz3TLx7pV4j|4|no|[here](libraries/cEffexApiClient "library source")
+no libraries discovered
 ### Enabled Google Services
 *library*|*identifier*|*version*
 --- | --- | --- 
