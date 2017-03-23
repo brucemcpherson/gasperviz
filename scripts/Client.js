@@ -79,7 +79,7 @@ var Client = (function (ns) {
   ns.init = function () {
     meter_ = new CanvasMeter(DomUtils.elem("meter"));
     averageMeter_ = new CanvasMeter(DomUtils.elem("average-meter"));
-    osc_ = new Osc().init(DomUtils.elem("osc"));
+    osc_ = new Osc().init(DomUtils.elem("osc"),DomUtils.elem("osc-summary"));
     
     // customize the meter
     meter_.setOptions (meterOptions_);
@@ -125,19 +125,24 @@ var Client = (function (ns) {
       // {received:stamp , executing:duration , sent:stamp}
       // client->server = start - result.received , server->executing = result.executing, server->client = now = result.sent
       // round trip = now - start
+      // however - the client time is not usually synched with the server time so this is innaccurate
+      // for now - im reporting transport time and execution time only
       var roundTrip = now - start;
+      var transport = roundTrip - result.executing;
+      
       stats_.roundTrip.count++;
       stats_.roundTrip.cumulative += roundTrip;
       
       // update the meters
       meter_.draw (roundTrip,low_,high_,"","now");
       averageMeter_.draw (stats_.roundTrip.cumulative/stats_.roundTrip.count,low_,high_,"","average");
-      osc_.add(low_,high_,roundTrip, false).draw();
+      osc_.add(0,high_,[roundTrip,transport,result.executing], false).draw().drawSummary();
       
       
     })
     ['catch'](function (err) {
-        osc_.add(low_,high_,new Date().getTime() - start, true).draw();
+        var roundTrip = new Date().getTime() - start;
+        osc_.add(low_,high_,[roundTrip,roundTrip,0],true).draw();
         App.toast ("dataFetch failed.. continuing",err);
         circle_ (ns.poke);
       });
