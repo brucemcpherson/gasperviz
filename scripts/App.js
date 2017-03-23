@@ -38,7 +38,7 @@ var App = (function startApp (app) {
       app.showNotification (header,text,true);
       setTimeout (function () {
         app.hideNotification();
-      },Process.control.toast.interval);
+      },5000);
     }
     
     DomUtils.elem('notification-close').addEventListener("click", function () {
