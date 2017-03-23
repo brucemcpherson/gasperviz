@@ -1,7 +1,7 @@
 
 var Client = (function (ns) {
   
-  var meter_,averageMeter_, schedule_ = 3000, stopped_ = true, stats_;
+  var meter_,averageMeter_, schedule_ = 3000, stopped_ = true, stats_, osc_, low_= 400, high_=1500;
   var initialStats_ = {
     roundTrip: {
       count:0,
@@ -15,8 +15,9 @@ var Client = (function (ns) {
           tick: 8,
           tickLabel: 34,
           value: 0,
-          pointer: 44,
-          label:-130
+          pointer: 40,
+          label:-120,
+          meter:-10
         },
         ramp: [{
             stop: 0,
@@ -38,16 +39,19 @@ var Client = (function (ns) {
         },
         ticks: {
           major: {
-            count: 11
+            count: 12
           },
           minor: {
             count: 4,
             width: 1
           },
           pointer: {
-            height: 36,
+            height: 32,
             width: 8
           }
+        },
+        arc: {
+          size: .9,
         },
         formatters: {
           value: function(v) {
@@ -66,6 +70,7 @@ var Client = (function (ns) {
   ns.clear = function () {
     // initialize the counts
     stats_ = JSON.parse(JSON.stringify(initialStats_));
+    osc_.clear();
   };
   
   /**
@@ -74,6 +79,7 @@ var Client = (function (ns) {
   ns.init = function () {
     meter_ = new CanvasMeter(DomUtils.elem("meter"));
     averageMeter_ = new CanvasMeter(DomUtils.elem("average-meter"));
+    osc_ = new Osc().init(DomUtils.elem("osc"));
     
     // customize the meter
     meter_.setOptions (meterOptions_);
@@ -124,9 +130,18 @@ var Client = (function (ns) {
       stats_.roundTrip.cumulative += roundTrip;
       
       // update the meters
-      meter_.draw (roundTrip,0,1000,"","now");
-      averageMeter_.draw (stats_.roundTrip.cumulative/stats_.roundTrip.count,0,1000,0,"average");
-    });
+      meter_.draw (roundTrip,low_,high_,"","now");
+      averageMeter_.draw (stats_.roundTrip.cumulative/stats_.roundTrip.count,low_,high_,"","average");
+      osc_.add(low_,high_,roundTrip, false).draw();
+      
+      
+    })
+    ['catch'](function (err) {
+        osc_.add(low_,high_,new Date().getTime() - start, true).draw();
+        App.toast ("dataFetch failed.. continuing",err);
+        circle_ (ns.poke);
+      });
+
     
   };
   /**
@@ -146,7 +161,7 @@ var Client = (function (ns) {
       })
       .then (function () {
           circle_(func);
-      });
+      })
     }
   };
   
