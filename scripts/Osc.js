@@ -4,30 +4,67 @@
 * 
 */
 function Osc  (ns) {
-  var ns= this, canvas_, observations_ =[],  options_ ={
+  var ns= this, summaryCanvas_ , canvas_, observations_ =[],  summaryCount_ = 0, summary_ =[0,0,0] , options_ = {
     backgroundColor:'white',
     size:100,
     lineWidth:1,
-    lineColor:'#455A64',
-    errorColor:'red'
+    lineColors:['#455A64','#1976D2','#FF5722'],    // this must equal the number of series
+    errorColor:'red',
+    legend:['roundtrip', 'transport', 'executing'],
+    legendColor:'white',
+    legendFont:'8pt sans'
   };
   
   ns.clear = function () {
     canvas_.getContext('2d').clearRect(0,0,canvas_.width,canvas_.height);
     observations_ =[];
+    summary_ =[0,0,0];
+    summaryCount_ = 0;
   };
   
-  ns.init = function (canvas) {
+  ns.init = function (canvas, summaryCanvas) {
     canvas_ = canvas;
+    summaryCanvas_ = summaryCanvas;
     return ns;
   };
   
-  ns.add = function (low,high, value, err) {
-    observations_.push ({
-      value: (value - (high-low)/2) / (high-low), 
-      error:err
-    });
+  ns.add = function (low,high, values, err) {
+    summaryCount_++;
+    observations_.push (values.map(function (d,i) { 
+      summary_[i] += d;
+      var v= {
+        value: d/(high-low), 
+        error:err
+      };
+      return v;
+    }));
     if (observations_.length > options_.size) observations_.shift();
+    return ns;
+  };
+  
+  ns.drawSummary = function () {
+    const ctx = summaryCanvas_.getContext("2d");
+    ctx.save();
+    // dimensions of canvas
+    const width = summaryCanvas_.width;
+    const height = summaryCanvas_.height;
+    
+    // skip the 1st summary
+    var x = 0;
+    
+    summary_.forEach (function (d,i) {
+      if (i) {
+        var p = d/summary_[0] * width;
+        ctx.fillStyle = options_.lineColors[i];
+        ctx.fillRect (x,0,p,height);
+        ctx.fillStyle = options_.legendColor;
+        ctx.font = options_.legendFont;
+        ctx.textAlign="center"; 
+        ctx.fillText (options_.legend[i],x + p/2,4+height/2);
+        x +=p;
+      }
+    });
+    ctx.restore();
     return ns;
   };
   
@@ -49,20 +86,25 @@ function Osc  (ns) {
     
     // each tick moves along
     var tickWidth = width / options_.size;
-    var x = 0,y;
+
     
     // make graph line
     ctx.lineWidth = options_.lineWidth;
-    ctx.strokeStyle = options_.lineColor;
     
     // plot each bar
-    observations_.forEach(function (d, i){
-      // the buffer values center around 0
-      y = -1 * d.value  * height/ 2 + height/2;
-      ctx[i ? 'lineTo' : 'moveTo'](x, y);
-      x += tickWidth;
+
+    options_.lineColors.forEach (function (d,i) {
+      var x=0;
+      ctx.beginPath();
+      observations_.forEach( function (e,j){
+        var y = (1 - e[i].value)  * height;
+        ctx[j ? 'lineTo' : 'moveTo'](x, y);
+        x += tickWidth;
+      });
+      ctx.strokeStyle = d;
+      ctx.stroke();
     });
-    ctx.stroke();
+
     ctx.restore();
     return ns;
   };
