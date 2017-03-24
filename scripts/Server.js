@@ -27,7 +27,7 @@ var Server = (function(ns) {
     
     // get the sheet and data
     var sheet = SpreadsheetApp.getActiveSheet();
-    var data = sheet.getDataRange().getValues();
+    var data = sheet.getDataRange().getDisplayValues();
     
     // all done - but we'll return the data too 
     var now = new Date().getTime();
