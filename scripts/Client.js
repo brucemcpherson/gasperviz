@@ -117,8 +117,14 @@ var Client = (function (ns) {
    */
   ns.poke = function () {
     
+    // this is equivalent to Server.dataFetch
+    // note that evalCode needs to be whitelist in the Server namespace.
+    var method = "evalCode";
+    var code = "var sheet = SpreadsheetApp.getActiveSheet(); return sheet.getDataRange().getDisplayValues();"
+    
+    
     var start = new Date().getTime();
-    return Provoke.run ("Server", "dataFetch")
+    return Provoke.run ("Server", method, code)
     .then (function (result) {
       var now = new Date().getTime();
       // the result should contain info about what the server did
@@ -127,6 +133,10 @@ var Client = (function (ns) {
       // round trip = now - start
       // however - the client time is not usually synched with the server time so this is innaccurate
       // for now - im reporting transport time and execution time only
+      // serverside errors are flagged in the result 
+      if (!result.ok) {
+        App.showNotification (method + " failed" , JSON.stringify(result.package) );
+      }
       var roundTrip = now - start;
       var transport = roundTrip - result.executing;
       
@@ -143,7 +153,7 @@ var Client = (function (ns) {
     ['catch'](function (err) {
         var roundTrip = new Date().getTime() - start;
         osc_.add(low_,high_,[roundTrip,roundTrip,0],true).draw();
-        App.toast ("dataFetch failed.. continuing",err);
+        App.toast ("poke failed.. continuing",err);
         circle_ (ns.poke);
       });
 
